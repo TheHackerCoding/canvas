@@ -12,7 +12,7 @@ export default class Engine {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+    this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     this.height = canvas.height;
     this.width = canvas.width;
     // canvas.addEventListener
@@ -37,9 +37,15 @@ export default class Engine {
   }
 
   loop() {
-    let { ctx, width, height, on } = this;
+    let { ctx, width, height, on, showFPS } = this;
+
+    const _loop = () => {
+      showFPS()
+      ctx.clearRect(0, 0, width, height);
+      if (on) requestAnimationFrame(_loop)
+    }
+    
     //Clear screen
-    ctx.clearRect(0, 0, width, height);
     // ctx.canvas.onkeydown((e) => {
     //   alert(e.code)
     // })
@@ -51,9 +57,6 @@ export default class Engine {
     //   // alert("pressed")
     //   this.showFPS()
     // })
-    this.showFPS()
-    if (on) requestAnimationFrame(this.loop)
-    this.loop()
   }
 }
 
