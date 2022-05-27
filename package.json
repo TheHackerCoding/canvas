@@ -15,7 +15,7 @@
     "vite-plugin-solid": "^2.2.6"
   },
   "dependencies": {
-    "hotkeys-js": "^3.9.4",
+    "keycode": "^2.2.1",
     "solid-js": "^1.4.2"
   }
 }
