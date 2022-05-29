@@ -2,14 +2,10 @@ import Component from "./component";
 import keycode from "keycode";
 
 export default class Engine {
-  public canvas: HTMLCanvasElement;
-  public ctx: CanvasRenderingContext2D;
   public components: Component[] = [];
   public totalFrames: number = 0;
   public tempFrames: number = 0;
   public fpsTimes: number[] = [];
-  public width: number;
-  public height: number;
   public on: boolean = false;
   public fps: number = 0;
   public audio: AudioContext = new AudioContext();
@@ -25,17 +21,21 @@ export default class Engine {
     [key: number]: boolean;
   } = {};
   public isClicked: boolean = false;
+  public state: {
+    [key: string]: unknown
+  } = {}
 
-  constructor(canvas: HTMLCanvasElement) {
-    this.canvas = canvas;
-    this.height = canvas.height;
-    this.width = canvas.width;
-    this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+  constructor(
+    public canvas: HTMLCanvasElement,
+    public height = canvas.height,
+    public width = canvas.width,
+    public ctx = canvas.getContext("2d")!
+  ) {
     this.canvasPos = {
       x: canvas.offsetLeft,
       y: canvas.offsetTop,
     };
-    canvas.ondragstart = (e) => {
+    canvas.addEventListener("ondragstart", (e) => {
       if (e && e.preventDefault) {
         e.preventDefault();
       }
@@ -43,10 +43,10 @@ export default class Engine {
         e.stopPropagation();
       }
       return false;
-    };
+    });
 
     // do nothing in the event handler except canceling the event
-    canvas.onselectstart = (e) => {
+    canvas.addEventListener("onselectstart", (e) => {
       if (e && e.preventDefault) {
         e.preventDefault();
       }
@@ -54,7 +54,7 @@ export default class Engine {
         e.stopPropagation();
       }
       return false;
-    };
+    });
 
     addEventListener(
       "keydown",
@@ -73,27 +73,42 @@ export default class Engine {
       false
     );
 
-    canvas.onmousedown = (e) => {
+    canvas.addEventListener("mousedown", (e) => {
       this.isClicked = true;
       this.mousePos = {
         x: e.pageX - this.canvasPos.x,
         y: e.pageY - this.canvasPos.y,
       };
-    };
+    });
 
-    canvas.onmousemove = (e) => {
-      if (this.isClicked) {
-        this.isClicked = true;
-      }
+    // canvas.onmousedown = (e) => {
+    //   this.isClicked = true;
+    //   this.mousePos = {
+    //     x: e.pageX - this.canvasPos.x,
+    //     y: e.pageY - this.canvasPos.y,
+    //   };
+    // };
+
+    canvas.addEventListener("mousemove", (e) => {
+      // if clicked then STAY CLICKED
+      this.isClicked = this.isClicked
       this.mousePos = {
         x: e.pageX - this.canvasPos.x,
         y: e.pageY - this.canvasPos.y,
       };
-    };
+    });
 
-    canvas.onmouseup = (e) => {
+    canvas.addEventListener("pointermove", (e) => {
+      this.isClicked = this.isClicked
+      this.mousePos = {
+        x: e.pageX - this.canvasPos.x,
+        y: e.pageY - this.canvasPos.y,
+      };
+    });
+
+    canvas.addEventListener("mouseup", () => {
       this.isClicked = false;
-    };
+    });
 
     // canvas.on("click", function (e) {
     //   e.preventDefault();
@@ -149,23 +164,22 @@ export default class Engine {
   }
 
   showBorder() {
-    this.ctx.fillRect(
-      this.canvasPos.x,
-      this.canvasPos.y,
+    this.ctx.strokeRect(
+      0,
+      0,
       this.width,
       this.height
     );
   }
 
   loop() {
-    // let { ctx, width, height, on, showFPS } = this;
 
     const _loop = (x: number) => {
       this.ctx.clearRect(0, 0, this.width, this.height);
       // this.totalFrames += 1;
       logic();
       // this.components.filter((x) => x.logic())
-      this.components.forEach((x) => x.logic())
+      this.components.forEach((x) => x.logic());
       if (this.on) {
         this.calculateFPS(requestAnimationFrame(_loop));
       }
@@ -186,37 +200,8 @@ export default class Engine {
     };
 
     requestAnimationFrame(_loop);
-    // _loop()
-    //Clear screen
-    // ctx.canvas.onkeydown((e) => {
-    //   alert(e.code)
-    // })
-    // canvas.addEventListener("keypress", (e) => {
-    //   console.log(e)
-    //   alert(e.code)
-    // }, false)
-    // hotkeys('f', () => {
-    //   // alert("pressed")
-    //   this.showFPS()
-    // })
   }
 }
-
-// oops i accidentally make a whole event listener tracker
-// type Events = {
-//   [event in keyof HTMLElementEventMap]: {
-//     listeners: {
-//       listener: Engine | Component,
-//       code: ()
-//     }[]
-//   }
-// };
-
-// type Events = {
-//   [event in keyof HTMLElementEventMap]: {
-
-//   }
-// };
 
 interface Position {
   x: number;

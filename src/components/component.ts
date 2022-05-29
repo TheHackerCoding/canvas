@@ -1,6 +1,6 @@
 import Engine from "./engine";
 
-export default class Component {
+export default abstract class Component {
   public canvas: HTMLCanvasElement;
   public ctx: CanvasRenderingContext2D;
   public engine: Engine;
