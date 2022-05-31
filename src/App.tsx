@@ -7,7 +7,7 @@ const App: Component = () => {
     <div class={styles.App}>
       <header class={styles.header}>
         <h1>helwo</h1>
-        <Canvas width={500} height={1000}/>
+        <Canvas width={innerWidth} height={innerHeight} />
       </header>
     </div>
   );

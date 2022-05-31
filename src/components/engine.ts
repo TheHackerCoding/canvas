@@ -1,10 +1,10 @@
 import Component from "./component";
 import keycode from "keycode";
+import { objLength } from "../utils";
 
 export default class Engine {
   public components: Component[] = [];
   public totalFrames: number = 0;
-  public tempFrames: number = 0;
   public fpsTimes: number[] = [];
   public on: boolean = false;
   public fps: number = 0;
@@ -155,7 +155,23 @@ export default class Engine {
     this.ctx.fillText(this.fps + " fps", 10, 26);
   }
 
+  showDebug() {
+    this.ctx.fillText(`${this.width} x ${this.height}`, 10, 36);
+    this.ctx.fillText(`frames: ${this.totalFrames}`, 10, 46);
+    this.ctx.fillText(`${objLength(this.keysDown)} keys pressed`, 10, 56);
+    this.ctx.fillText(`${objLength(this.state)} things in engine state`, 10, 66);
+  }
+
+  lockPointer() {
+    this.canvas.requestPointerLock()
+  }
+
+  fullscreen() {
+    this.canvas.requestFullscreen()
+  }
+
   calculateFPS(x: number) {
+    this.totalFrames += 1
     while (this.fpsTimes.length > 0 && this.fpsTimes[0] <= x - 1000) {
       this.fpsTimes.shift();
     }
@@ -192,6 +208,13 @@ export default class Engine {
       }
       if (this.pressed("b")) {
         this.showBorder();
+      }
+      if (this.pressed("d")) {
+        this.showDebug()
+      }
+      if (this.pressed("c")) {
+        //this.canvas.style.cursor = "pointer"
+        this.fullscreen()
       }
       if (this.isClicked) {
         let mou = this.getMousePos();

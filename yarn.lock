@@ -312,11 +312,6 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@types/keyboardjs@^2.5.0":
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/@types/keyboardjs/-/keyboardjs-2.5.0.tgz#8ab3ac77a1e413e64b80c51b8d6c20e6c79da3f5"
-  integrity sha512-tGU6Lz04lDNH+N3AZYIWVeBza2ZSaLlZuSkzi38zSFSuh6DgVqBdqgkX+OS+jg1vwlw5XzS5MASY44fr9C12Yg==
-
 ansi-styles@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-3.2.1.tgz#41fbb20243e50b12be0f04b8dedbf07520ce841d"
@@ -565,11 +560,6 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
-hotkeys-js@^3.9.4:
-  version "3.9.4"
-  resolved "https://registry.yarnpkg.com/hotkeys-js/-/hotkeys-js-3.9.4.tgz#ce1aa4c3a132b6a63a9dd5644fc92b8a9b9cbfb9"
-  integrity sha512-2zuLt85Ta+gIyvs4N88pCYskNrxf1TFv3LR9t5mdAZIX8BcgQQ48F2opUptvHa6m8zsy5v/a0i9mWzTrlNWU0Q==
-
 html-entities@2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/html-entities/-/html-entities-2.3.2.tgz#760b404685cb1d794e4f4b744332e3b00dcfe488"
@@ -601,11 +591,6 @@ json5@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.1.tgz#655d50ed1e6f95ad1a3caababd2b0efda10b395c"
   integrity sha512-1hqLFMSrGHRHxav9q9gNjJ5EXznIxGVO09xQRrwplcS8qs28pZ8s8hupZAmqDwZUmVZ2Qb2jnyPOWcDH8m8dlA==
-
-keyboardjs@^2.6.4:
-  version "2.6.4"
-  resolved "https://registry.yarnpkg.com/keyboardjs/-/keyboardjs-2.6.4.tgz#28dccd9787c8f37e7c017df2f87294ca21143436"
-  integrity sha512-xDiNwiwH3KUqap++RFJiLAXzbvRB5Yw08xliuceOgLhM1o7g1puKKR9vWy6wp9H/Bi4VP0+SQMpiWXMWWmR6rA==
 
 keycode@^2.2.1:
   version "2.2.1"
