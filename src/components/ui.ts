@@ -1,21 +1,38 @@
-// ui -> window -> widgets
-//class UI {
-//  public windows: Window[] = []
-//  constructor(public ctx: CanvasRenderingContext2D) { }
+// MainView -> View -> Widgets
 
-//  addWindow() {
-//    let win = new Window()
-//  }
-//}
+class MainView {
+  public views: View[] = [];
 
-//class Window {
-//  constructor(public name: string, public width: number, public height: number) { }
-//}
+  constructor() { }
+}
 
-//export {
-//  UI
-//}
 
-class 
+class View {
+  constructor(public ctx: CanvasRenderingContext2D) { }
 
-export { }
+  logic(x: (y: View) => void): void {
+    x(this)
+  }
+
+  add(widget: Widget) {
+    let x = 
+  }
+
+  addText(text: string): void {
+
+  }
+}
+
+abstract class Widget {
+  public config: {} = {}
+}
+
+class Text extends Widget {
+
+}
+
+export {
+  MainView,
+  View,
+  Widget
+}

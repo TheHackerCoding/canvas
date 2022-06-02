@@ -3,12 +3,15 @@ import keycode from "keycode";
 import { objLength } from "../utils";
 
 export default class Engine {
+  // oops sadly this is needed
+  public layers: Dictionary<HTMLCanvasElement> = {};
+  public offscreenCanvas: HTMLCanvasElement;
   public components: Component[] = [];
   public totalFrames: number = 0;
   public fpsTimes: number[] = [];
   public on: boolean = false;
   public fps: number = 0;
-  public audio: AudioContext = new AudioContext();
+  public audio: AudioContext;
   public mousePos: Position = {
     x: 0,
     y: 0,
@@ -17,25 +20,25 @@ export default class Engine {
     x: 0,
     y: 0,
   };
-  public keysDown: {
-    [key: number]: boolean;
-  } = {};
+  public keysDown: Dictionary<boolean> = {};
   public isClicked: boolean = false;
-  public state: {
-    [key: string]: unknown
-  } = {}
+  public state: Dictionary<unknown> = {};
 
   constructor(
-    public canvas: HTMLCanvasElement,
-    public height = canvas.height,
-    public width = canvas.width,
-    public ctx = canvas.getContext("2d")!
+    public mainCanvas: HTMLCanvasElement,
+    public height = mainCanvas.height,
+    public width = mainCanvas.width,
+    public ctx = mainCanvas.getContext("2d", { alpha: false })!
+    //public ctx = mainCanvas.getContext("2d")!
   ) {
+    this.offscreenCanvas = this.createCanvas("offscreen");
+
     this.canvasPos = {
-      x: canvas.offsetLeft,
-      y: canvas.offsetTop,
+      x: mainCanvas.offsetLeft,
+      y: mainCanvas.offsetTop,
     };
-    canvas.addEventListener("ondragstart", (e) => {
+
+    mainCanvas.addEventListener("ondragstart", (e) => {
       if (e && e.preventDefault) {
         e.preventDefault();
       }
@@ -46,7 +49,7 @@ export default class Engine {
     });
 
     // do nothing in the event handler except canceling the event
-    canvas.addEventListener("onselectstart", (e) => {
+    mainCanvas.addEventListener("onselectstart", (e) => {
       if (e && e.preventDefault) {
         e.preventDefault();
       }
@@ -73,7 +76,7 @@ export default class Engine {
       false
     );
 
-    canvas.addEventListener("mousedown", (e) => {
+    mainCanvas.addEventListener("mousedown", (e) => {
       this.isClicked = true;
       this.mousePos = {
         x: e.pageX - this.canvasPos.x,
@@ -81,49 +84,37 @@ export default class Engine {
       };
     });
 
-    // canvas.onmousedown = (e) => {
-    //   this.isClicked = true;
-    //   this.mousePos = {
-    //     x: e.pageX - this.canvasPos.x,
-    //     y: e.pageY - this.canvasPos.y,
-    //   };
-    // };
-
-    canvas.addEventListener("mousemove", (e) => {
+    mainCanvas.addEventListener("mousemove", (e) => {
       // if clicked then STAY CLICKED
-      this.isClicked = this.isClicked
+      this.isClicked = this.isClicked;
       this.mousePos = {
         x: e.pageX - this.canvasPos.x,
         y: e.pageY - this.canvasPos.y,
       };
     });
 
-    canvas.addEventListener("pointermove", (e) => {
-      this.isClicked = this.isClicked
+    mainCanvas.addEventListener("pointermove", (e) => {
+      this.isClicked = this.isClicked;
       this.mousePos = {
         x: e.pageX - this.canvasPos.x,
         y: e.pageY - this.canvasPos.y,
       };
     });
 
-    canvas.addEventListener("mouseup", () => {
+    mainCanvas.addEventListener("mouseup", () => {
       this.isClicked = false;
     });
 
-    // canvas.on("click", function (e) {
-    //   e.preventDefault();
+    // uhhh
+    this.audio = new AudioContext();
+  }
 
-    //   var mouse = {
-    //     x: e.pageX - canvasPosition.x,
-    //     y: e.pageY - canvasPosition.y,
-    //   };
-
-    //   //do something with mouse position here
-
-    //   return false;
-    // });
-    // canvas.addEventListener
-    // canvas.addEventListener('keypress', )
+  createCanvas(x: string): HTMLCanvasElement {
+    let canvas = document.createElement("canvas");
+    canvas.width = this.mainCanvas.width;
+    canvas.height = this.mainCanvas.height;
+    this.layers[x] = canvas;
+    return canvas;
   }
 
   addComponent(component: Component) {
@@ -159,19 +150,23 @@ export default class Engine {
     this.ctx.fillText(`${this.width} x ${this.height}`, 10, 36);
     this.ctx.fillText(`frames: ${this.totalFrames}`, 10, 46);
     this.ctx.fillText(`${objLength(this.keysDown)} keys pressed`, 10, 56);
-    this.ctx.fillText(`${objLength(this.state)} things in engine state`, 10, 66);
+    this.ctx.fillText(
+      `${objLength(this.state)} things in engine state`,
+      10,
+      66
+    );
   }
 
   lockPointer() {
-    this.canvas.requestPointerLock()
+    this.mainCanvas.requestPointerLock();
   }
 
   fullscreen() {
-    this.canvas.requestFullscreen()
+    this.mainCanvas.requestFullscreen();
   }
 
   calculateFPS(x: number) {
-    this.totalFrames += 1
+    this.totalFrames += 1;
     while (this.fpsTimes.length > 0 && this.fpsTimes[0] <= x - 1000) {
       this.fpsTimes.shift();
     }
@@ -180,20 +175,14 @@ export default class Engine {
   }
 
   showBorder() {
-    this.ctx.strokeRect(
-      0,
-      0,
-      this.width,
-      this.height
-    );
+    this.ctx.strokeRect(0, 0, this.width, this.height);
   }
 
   loop() {
-
     const _loop = (x: number) => {
       this.ctx.clearRect(0, 0, this.width, this.height);
       // this.totalFrames += 1;
-      logic();
+      //logic();
       // this.components.filter((x) => x.logic())
       this.components.forEach((x) => x.logic());
       if (this.on) {
@@ -210,11 +199,14 @@ export default class Engine {
         this.showBorder();
       }
       if (this.pressed("d")) {
-        this.showDebug()
+        this.showDebug();
       }
       if (this.pressed("c")) {
         //this.canvas.style.cursor = "pointer"
-        this.fullscreen()
+        this.fullscreen();
+      }
+      if (this.pressed("s")) {
+        this.ctx.font = '10px sans-serif'
       }
       if (this.isClicked) {
         let mou = this.getMousePos();
@@ -230,3 +222,9 @@ interface Position {
   x: number;
   y: number;
 }
+
+type Dictionary<V> = {
+  [key in Key]: V;
+};
+
+type Key = string | number | symbol;

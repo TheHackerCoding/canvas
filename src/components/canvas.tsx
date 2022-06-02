@@ -1,19 +1,22 @@
 import { onError, onMount } from "solid-js";
+import Raytracking from "../../raytracingComponent";
 import TestComponent from "../testComponent";
 import Engine from "./engine";
 
-const Canvas = ({ width, height }: { width: number, height: number}) => {
+const Canvas = ({ width, height }: { width: number, height: number }) => {
   onMount(() => {
-    const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+    const canvas = document.querySelector('canvas')!;
     // const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-    
+
     let engine = new Engine(canvas)
-    let test = new TestComponent(engine)
-    engine.addComponent(test)
-    try { 
+    //let test = new TestComponent(engine)
+    let ray = new Raytracking(engine)
+    engine.addComponent(ray)
+    //engine.addComponent(test)
+    try {
       engine.start()
     } catch (e: any) {
-      // alert(e + `at ${e.stack}`)
+      alert(e + `at ${e.stack}`)
       console.error(e)
     }
   })
