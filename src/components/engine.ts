@@ -3,14 +3,16 @@ import keycode from "keycode";
 import { objLength } from "../utils";
 
 export default class Engine {
+  // 60 + 5 to stabilize at 60
+  public wantedFps: number = 65;
+  public fpsInterval = 1000 / this.wantedFps
   // oops sadly this is needed
   public layers: Dictionary<HTMLCanvasElement> = {};
-  public offscreenCanvas: HTMLCanvasElement;
+  //public offscreenCanvas: HTMLCanvasElement;
   public components: Component[] = [];
   public totalFrames: number = 0;
   public fpsTimes: number[] = [];
   public on: boolean = false;
-  public fps: number = 0;
   public audio: AudioContext;
   public mousePos: Position = {
     x: 0,
@@ -23,22 +25,23 @@ export default class Engine {
   public keysDown: Dictionary<boolean> = {};
   public isClicked: boolean = false;
   public state: Dictionary<unknown> = {};
+  public fps: number = 0;
 
   constructor(
-    public mainCanvas: HTMLCanvasElement,
-    public height = mainCanvas.height,
-    public width = mainCanvas.width,
-    public ctx = mainCanvas.getContext("2d", { alpha: false })!
-    //public ctx = mainCanvas.getContext("2d")!
+    public canvas: HTMLCanvasElement,
+    public height = canvas.height,
+    public width = canvas.width,
+    public ctx = canvas.getContext("2d", { alpha: false })!
+    //public ctx = canvas.getContext("2d")!
   ) {
-    this.offscreenCanvas = this.createCanvas("offscreen");
+    //this.offscreenCanvas = this.createCanvas("offscreen");
 
     this.canvasPos = {
-      x: mainCanvas.offsetLeft,
-      y: mainCanvas.offsetTop,
+      x: canvas.offsetLeft,
+      y: canvas.offsetTop,
     };
 
-    mainCanvas.addEventListener("ondragstart", (e) => {
+    canvas.addEventListener("ondragstart", (e) => {
       if (e && e.preventDefault) {
         e.preventDefault();
       }
@@ -49,7 +52,7 @@ export default class Engine {
     });
 
     // do nothing in the event handler except canceling the event
-    mainCanvas.addEventListener("onselectstart", (e) => {
+    canvas.addEventListener("onselectstart", (e) => {
       if (e && e.preventDefault) {
         e.preventDefault();
       }
@@ -76,7 +79,7 @@ export default class Engine {
       false
     );
 
-    mainCanvas.addEventListener("mousedown", (e) => {
+    canvas.addEventListener("mousedown", (e) => {
       this.isClicked = true;
       this.mousePos = {
         x: e.pageX - this.canvasPos.x,
@@ -84,7 +87,7 @@ export default class Engine {
       };
     });
 
-    mainCanvas.addEventListener("mousemove", (e) => {
+    canvas.addEventListener("mousemove", (e) => {
       // if clicked then STAY CLICKED
       this.isClicked = this.isClicked;
       this.mousePos = {
@@ -93,7 +96,7 @@ export default class Engine {
       };
     });
 
-    mainCanvas.addEventListener("pointermove", (e) => {
+    canvas.addEventListener("pointermove", (e) => {
       this.isClicked = this.isClicked;
       this.mousePos = {
         x: e.pageX - this.canvasPos.x,
@@ -101,7 +104,7 @@ export default class Engine {
       };
     });
 
-    mainCanvas.addEventListener("mouseup", () => {
+    canvas.addEventListener("mouseup", () => {
       this.isClicked = false;
     });
 
@@ -111,8 +114,8 @@ export default class Engine {
 
   createCanvas(x: string): HTMLCanvasElement {
     let canvas = document.createElement("canvas");
-    canvas.width = this.mainCanvas.width;
-    canvas.height = this.mainCanvas.height;
+    canvas.width = this.canvas.width;
+    canvas.height = this.canvas.height;
     this.layers[x] = canvas;
     return canvas;
   }
@@ -158,11 +161,11 @@ export default class Engine {
   }
 
   lockPointer() {
-    this.mainCanvas.requestPointerLock();
+    this.canvas.requestPointerLock();
   }
 
   fullscreen() {
-    this.mainCanvas.requestFullscreen();
+    this.canvas.requestFullscreen();
   }
 
   calculateFPS(x: number) {
@@ -178,16 +181,19 @@ export default class Engine {
     this.ctx.strokeRect(0, 0, this.width, this.height);
   }
 
+  // https://stackoverflow.com/q/19764018/10908941
   loop() {
-    const _loop = (x: number) => {
+    const _loop = () => {
       this.ctx.clearRect(0, 0, this.width, this.height);
       // this.totalFrames += 1;
       //logic();
       // this.components.filter((x) => x.logic())
       this.components.forEach((x) => x.logic());
-      if (this.on) {
-        this.calculateFPS(requestAnimationFrame(_loop));
-      }
+      //if (this.on) {
+      //  this.calculateFPS(requestAnimationFrame(_loop));
+      //}
+      console.log("hi")
+      setTimeout(() => _loop, 10)
       // _loop()
     };
 
@@ -214,7 +220,13 @@ export default class Engine {
       }
     };
 
-    requestAnimationFrame(_loop);
+    _loop()
+    //setTimeout(() => _loop, 10)
+
+    //requestAnimationFrame(_loop)
+    //setTimeout(() => {
+    //  requestAnimationFrame(_loop)
+    //}, 1000 / 60);
   }
 }
 

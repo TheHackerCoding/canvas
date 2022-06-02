@@ -1,5 +1,5 @@
-import Component from "./src/components/component"
-import Engine from "./src/components/engine"
+import Component from "./components/component"
+import Engine from "./components/engine"
 
 export default class Raytracking extends Component {
   public scene: Scene = {
@@ -83,7 +83,7 @@ export default class Raytracking extends Component {
 
   constructor(x: Engine, y?: Component) {
     super(x, y)
-    this.data = this.ctx.getImageData(0, 0, this.mainCanvas.width, this.mainCanvas.height)
+    this.data = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
   }
 
   render(scene: Scene) {
@@ -91,20 +91,20 @@ export default class Raytracking extends Component {
       vpRight = Vector.unitVector(Vector.crossProduct(eyeVector, Vector.UP)),
       vpUp = Vector.unitVector(Vector.crossProduct(vpRight, eyeVector)),
       fovRadians = (Math.PI * (this.scene.camera.fieldOfView / 2)) / 180,
-      heightWidthRatio = this.mainCanvas.height / this.mainCanvas.width,
+      heightWidthRatio = this.canvas.height / this.canvas.width,
       halfWidth = Math.tan(fovRadians),
       halfHeight = heightWidthRatio * halfWidth,
       cameraWidth = halfWidth * 2,
       cameraHeight = halfHeight * 2,
-      pixelWidth = cameraWidth / (this.mainCanvas.width - 1),
-      pixelHeight = cameraHeight / (this.mainCanvas.height - 1)
-    let index, color
+      pixelWidth = cameraWidth / (this.canvas.width - 1),
+      pixelHeight = cameraHeight / (this.canvas.height - 1)
+    let index: number, color: Vector
     let ray = {
       point: this.scene.camera.point,
       vector: Vector.ZERO
     } as Ray
-    for (let x = 0; x < this.mainCanvas.width; x++) {
-      for (let y = 0; y < this.mainCanvas.height; y++) {
+    for (let x = 0; x < this.canvas.width; x++) {
+      for (let y = 0; y < this.canvas.height; y++) {
         let xcomp = Vector.scale(vpRight, x * pixelWidth - halfWidth),
           ycomp = Vector.scale(vpUp, y * pixelHeight - halfHeight);
 
@@ -112,8 +112,8 @@ export default class Raytracking extends Component {
 
         // use the vector generated to raytrace the scene, returning a color
         // as a `{x, y, z}` vector of RGB values
-        color = this.trace(ray, scene, 0);
-        (index = x * 4 + y * this.mainCanvas.width * 4), (this.data.data[index + 0] = color!.x);
+        color = this.trace(ray, scene, 0)!;
+        (index = x * 4 + y * this.canvas.width * 4), (this.data.data[index + 0] = color!.x);
         console.log(index)
         this.data.data[index + 1] = color!.y;
         this.data.data[index + 2] = color!.z;
@@ -123,9 +123,9 @@ export default class Raytracking extends Component {
     this.ctx.putImageData(this.data, 0, 0)
   }
 
-  trace(ray: Ray, scene: Scene, depth: number): Vector | undefined {
+  trace(ray: Ray, scene: Scene, depth: number): Vector | void {
     if (depth > 3) return;
-    var distObject = this.intersectScene(ray, scene);
+    let distObject = this.intersectScene(ray, scene);
 
     // If we don't hit anything, fill this pixel with the background color -
     // in this case, white.
@@ -133,14 +133,14 @@ export default class Raytracking extends Component {
       return Vector.WHITE;
     }
 
-    var dist = distObject[0],
+    let dist = distObject[0],
       object = distObject[1];
 
     // The `pointAtTime` is another way of saying the 'intersection point'
     // of this ray into this object. We compute this by simply taking
     // the direction of the ray and making it as long as the distance
     // returned by the intersection check.
-    var pointAtTime = Vector.add(ray.point, Vector.scale(ray.vector, dist!));
+    let pointAtTime = Vector.add(ray.point, Vector.scale(ray.vector, dist!));
 
     return this.surface(
       ray,

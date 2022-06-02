@@ -9,6 +9,7 @@ const App: Component = () => {
         <h1>helwo</h1>
         {/*<Canvas width={window.screen.width / 2} height={window.screen.height / 2} />*/}
         <Canvas width={1280} height={720} />
+        {/*<Canvas width={640 * .5} height={480 * .5} />*/}
       </header>
     </div>
   );

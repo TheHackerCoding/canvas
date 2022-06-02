@@ -1,5 +1,5 @@
 import { onError, onMount } from "solid-js";
-import Raytracking from "../../raytracingComponent";
+import Raytracking from "../raytracingComponent";
 import TestComponent from "../testComponent";
 import Engine from "./engine";
 
