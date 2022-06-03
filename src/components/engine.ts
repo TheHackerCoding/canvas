@@ -4,14 +4,13 @@ import { objLength } from "../utils";
 
 export default class Engine {
   // 60 + 5 to stabilize at 60
-  public wantedFps: number = 65;
-  public fpsInterval = 1000 / this.wantedFps
+  public fps: number = 65;
   // oops sadly this is needed
   public layers: Dictionary<HTMLCanvasElement> = {};
   //public offscreenCanvas: HTMLCanvasElement;
   public components: Component[] = [];
   public totalFrames: number = 0;
-  public fpsTimes: number[] = [];
+  // public fpsTimes: number[] = [];
   public on: boolean = false;
   public audio: AudioContext;
   public mousePos: Position = {
@@ -25,14 +24,13 @@ export default class Engine {
   public keysDown: Dictionary<boolean> = {};
   public isClicked: boolean = false;
   public state: Dictionary<unknown> = {};
-  public fps: number = 0;
 
   constructor(
     public canvas: HTMLCanvasElement,
     public height = canvas.height,
     public width = canvas.width,
-    public ctx = canvas.getContext("2d", { alpha: false })!
-    //public ctx = canvas.getContext("2d")!
+    // public ctx = canvas.getContext("2d", { alpha: false })!
+    public ctx = canvas.getContext("2d")!
   ) {
     //this.offscreenCanvas = this.createCanvas("offscreen");
 
@@ -133,7 +131,7 @@ export default class Engine {
   start() {
     this.on = true;
     // setTimeout(this.calculateFPS, 6);
-    this.loop();
+    this.loop()
   }
 
   getMousePos(): Position {
@@ -168,14 +166,14 @@ export default class Engine {
     this.canvas.requestFullscreen();
   }
 
-  calculateFPS(x: number) {
-    this.totalFrames += 1;
-    while (this.fpsTimes.length > 0 && this.fpsTimes[0] <= x - 1000) {
-      this.fpsTimes.shift();
-    }
-    this.fpsTimes.push(x);
-    this.fps = this.fpsTimes.length;
-  }
+  // calculateFPS(x: number) {
+  //   this.totalFrames += 1;
+  //   while (this.fpsTimes.length > 0 && this.fpsTimes[0] <= x - 1000) {
+  //     this.fpsTimes.shift();
+  //   }
+  //   this.fpsTimes.push(x);
+  //   this.fps = this.fpsTimes.length;
+  // }
 
   showBorder() {
     this.ctx.strokeRect(0, 0, this.width, this.height);
@@ -183,51 +181,35 @@ export default class Engine {
 
   // https://stackoverflow.com/q/19764018/10908941
   loop() {
-    const _loop = () => {
-      this.ctx.clearRect(0, 0, this.width, this.height);
-      // this.totalFrames += 1;
-      //logic();
-      // this.components.filter((x) => x.logic())
-      this.components.forEach((x) => x.logic());
-      //if (this.on) {
-      //  this.calculateFPS(requestAnimationFrame(_loop));
-      //}
-      console.log("hi")
-      setTimeout(() => _loop, 10)
-      // _loop()
-    };
-
-    const logic = () => {
-      if (this.pressed("f")) {
-        this.showFPS();
-      }
-      if (this.pressed("b")) {
-        this.showBorder();
-      }
-      if (this.pressed("d")) {
-        this.showDebug();
-      }
-      if (this.pressed("c")) {
-        //this.canvas.style.cursor = "pointer"
-        this.fullscreen();
-      }
-      if (this.pressed("s")) {
-        this.ctx.font = '10px sans-serif'
-      }
-      if (this.isClicked) {
-        let mou = this.getMousePos();
-        this.ctx.fillText("Clicked", mou.x, mou.y);
-      }
-    };
-
-    _loop()
-    //setTimeout(() => _loop, 10)
-
-    //requestAnimationFrame(_loop)
-    //setTimeout(() => {
-    //  requestAnimationFrame(_loop)
-    //}, 1000 / 60);
+    setTimeout(() => {
+      this.loop()
+      this.logic()
+      this.components.forEach(x => x.logic())
+    }, 1000 / this.fps)
   }
+
+  logic() {
+    if (this.pressed("f")) {
+      this.showFPS();
+    }
+    if (this.pressed("b")) {
+      this.showBorder();
+    }
+    if (this.pressed("d")) {
+      this.showDebug();
+    }
+    if (this.pressed("c")) {
+      //this.canvas.style.cursor = "pointer"
+      this.fullscreen();
+    }
+    if (this.pressed("s")) {
+      this.ctx.font = '10px sans-serif'
+    }
+    if (this.isClicked) {
+      let mou = this.getMousePos();
+      this.ctx.fillText("Clicked", mou.x, mou.y);
+    }
+  };
 }
 
 interface Position {
