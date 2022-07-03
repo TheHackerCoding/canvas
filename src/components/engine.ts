@@ -1,17 +1,43 @@
-import Component from "./component";
+import type Component from "./component";
 import keycode from "keycode";
 import { objLength } from "../utils";
 
+const PREFIX = "eng-"
+
+const newStorage = (location: Storage): Dictionary<string> => {
+  let loc: Dictionary<string> = {}
+  for (const [key, value] of Object.entries(location)) {
+    if (key.startsWith(PREFIX)) {
+      loc[key] = value;
+    }
+  };
+  loc = new Proxy(loc, {
+    get(_target, prop) {
+      return location.get(prop)
+    },
+    set(_target, prop, val) {
+      location.set(prop, val)
+      return true
+    },
+    deleteProperty(_target, p) {
+      location.delete(p)
+      return true
+    },
+    has(_target, prop) {
+      return location.has(prop)
+    }
+  });
+  return loc
+}
+
 export default class Engine {
-  // 60 + 5 to stabilize at 60
-  public fps: number = 65;
   // oops sadly this is needed
   public layers: Dictionary<HTMLCanvasElement> = {};
-  //public offscreenCanvas: HTMLCanvasElement;
   public components: Component[] = [];
   public totalFrames: number = 0;
-  // public fpsTimes: number[] = [];
+  public fpsTimes: number[] = [];
   public on: boolean = false;
+  public fps: number = 0;
   public audio: AudioContext;
   public mousePos: Position = {
     x: 0,
@@ -23,17 +49,23 @@ export default class Engine {
   };
   public keysDown: Dictionary<boolean> = {};
   public isClicked: boolean = false;
-  public state: Dictionary<unknown> = {};
+  public localState: Dictionary<unknown> = {};
+  public engineState: Dictionary<string> = newStorage(localStorage);
+  public cacheState: Dictionary<string> = newStorage(sessionStorage);
 
   constructor(
     public canvas: HTMLCanvasElement,
+    config?: EngineConfig,
     public height = canvas.height,
     public width = canvas.width,
-    // public ctx = canvas.getContext("2d", { alpha: false })!
-    public ctx = canvas.getContext("2d")!
+    //public ctx = canvas.getContext("2d", { alpha: false })!
+    public ctx = canvas.getContext("2d")!,
   ) {
-    //this.offscreenCanvas = this.createCanvas("offscreen");
-
+    if (config) {
+      if (config.export) {
+        (config.export) ? window.engine = this : undefined
+      }
+    }
     this.canvasPos = {
       x: canvas.offsetLeft,
       y: canvas.offsetTop,
@@ -118,10 +150,14 @@ export default class Engine {
     return canvas;
   }
 
-  addComponent(component: Component) {
+  addComponent(component: Sinural<Component>) {
     // let comp =
     // component.import(this)
-    this.components.push(component);
+    if (component.constructor === Array) {
+      this.components = this.components.concat(component);
+    } else {
+      this.components.push(component as Component);
+    }
   }
 
   pressed(key: string): boolean {
@@ -131,7 +167,7 @@ export default class Engine {
   start() {
     this.on = true;
     // setTimeout(this.calculateFPS, 6);
-    this.loop()
+    this.loop();
   }
 
   getMousePos(): Position {
@@ -152,7 +188,7 @@ export default class Engine {
     this.ctx.fillText(`frames: ${this.totalFrames}`, 10, 46);
     this.ctx.fillText(`${objLength(this.keysDown)} keys pressed`, 10, 56);
     this.ctx.fillText(
-      `${objLength(this.state)} things in engine state`,
+      `${objLength(this.engineState)} things in engine state`,
       10,
       66
     );
@@ -166,26 +202,32 @@ export default class Engine {
     this.canvas.requestFullscreen();
   }
 
-  // calculateFPS(x: number) {
-  //   this.totalFrames += 1;
-  //   while (this.fpsTimes.length > 0 && this.fpsTimes[0] <= x - 1000) {
-  //     this.fpsTimes.shift();
-  //   }
-  //   this.fpsTimes.push(x);
-  //   this.fps = this.fpsTimes.length;
-  // }
+  calculateFPS(x: number) {
+    this.totalFrames += 1;
+    while (this.fpsTimes.length > 0 && this.fpsTimes[0] <= x - 1000) {
+      this.fpsTimes.shift();
+    }
+    this.fpsTimes.push(x);
+    this.fps = this.fpsTimes.length;
+  }
 
   showBorder() {
     this.ctx.strokeRect(0, 0, this.width, this.height);
   }
 
-  // https://stackoverflow.com/q/19764018/10908941
   loop() {
-    setTimeout(() => {
-      this.loop()
-      this.logic()
-      this.components.forEach(x => x.logic())
-    }, 1000 / this.fps)
+    const _loop = (x: number) => {
+      this.ctx.clearRect(0, 0, this.width, this.height);
+      // this.totalFrames += 1;
+      this.logic();
+      // this.components.filter((x) => x.logic())
+      //this.components.forEach((x) => x.logic());
+      if (this.on) {
+        this.calculateFPS(requestAnimationFrame(_loop));
+      }
+      // _loop()
+    };
+    requestAnimationFrame(_loop);
   }
 
   logic() {
@@ -209,7 +251,7 @@ export default class Engine {
       let mou = this.getMousePos();
       this.ctx.fillText("Clicked", mou.x, mou.y);
     }
-  };
+  }
 }
 
 interface Position {
@@ -222,3 +264,16 @@ type Dictionary<V> = {
 };
 
 type Key = string | number | symbol;
+
+interface EngineConfig {
+  export?: boolean
+}
+
+declare global {
+  interface Window {
+    engine?: Engine
+  }
+}
+
+// single or plural (weird word mix)
+type Sinural<T> = T | T[]

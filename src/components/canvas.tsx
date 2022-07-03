@@ -8,7 +8,9 @@ const Canvas = ({ width, height }: { width: number, height: number }) => {
     const canvas = document.querySelector('canvas')!;
     // const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-    let engine = new Engine(canvas)
+    let engine = new Engine(canvas, {
+      export: true
+    })
     //let test = new TestComponent(engine)
     let ray = new Raytracking(engine)
     engine.addComponent(ray)
