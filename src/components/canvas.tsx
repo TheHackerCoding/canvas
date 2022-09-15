@@ -12,11 +12,12 @@ const Canvas = ({ width, height }: { width: number, height: number }) => {
       export: true
     })
     //let test = new TestComponent(engine)
-    let ray = new Raytracking(engine)
-    engine.addComponent(ray)
+    //let ray = new Raytracking(engine)
+    //engine.addComponent(ray)
     //engine.addComponent(test)
     try {
       engine.start()
+      console.log("engine started")
     } catch (e: any) {
       alert(e + `at ${e.stack}`)
       console.error(e)

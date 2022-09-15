@@ -35,7 +35,8 @@ export default class Engine {
   public layers: Dictionary<HTMLCanvasElement> = {};
   public components: Component[] = [];
   public totalFrames: number = 0;
-  public fpsTimes: number[] = [];
+  public oldTimestamp: number = 0;
+  public secondsPassed: number = 0;
   public on: boolean = false;
   public fps: number = 0;
   public audio: AudioContext;
@@ -167,7 +168,9 @@ export default class Engine {
   start() {
     this.on = true;
     // setTimeout(this.calculateFPS, 6);
-    this.loop();
+    console.log(this.oldTimestamp)
+    this.oldTimestamp = 0
+    window.requestAnimationFrame(this.gameLoop)
   }
 
   getMousePos(): Position {
@@ -202,32 +205,24 @@ export default class Engine {
     this.canvas.requestFullscreen();
   }
 
-  calculateFPS(x: number) {
-    this.totalFrames += 1;
-    while (this.fpsTimes.length > 0 && this.fpsTimes[0] <= x - 1000) {
-      this.fpsTimes.shift();
-    }
-    this.fpsTimes.push(x);
-    this.fps = this.fpsTimes.length;
-  }
-
   showBorder() {
     this.ctx.strokeRect(0, 0, this.width, this.height);
   }
 
-  loop() {
-    const _loop = (x: number) => {
-      this.ctx.clearRect(0, 0, this.width, this.height);
-      // this.totalFrames += 1;
-      this.logic();
-      // this.components.filter((x) => x.logic())
-      //this.components.forEach((x) => x.logic());
-      if (this.on) {
-        this.calculateFPS(requestAnimationFrame(_loop));
-      }
-      // _loop()
-    };
-    requestAnimationFrame(_loop);
+  gameLoop = (timestamp: number) => {
+    //this.oldTimestamp = 0
+    //console.log("timestamp" + this.oldTimestamp)
+    this.secondsPassed = (timestamp - this.oldTimestamp) / 1000;
+    this.oldTimestamp = timestamp;
+    this.fps = Math.round(1 / this.secondsPassed)
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    // this.totalFrames += 1;
+    this.logic();
+    // this.components.filter((x) => x.logic())
+    //this.components.forEach((x) => x.logic());
+    if (this.on) {
+      window.requestAnimationFrame(this.gameLoop)
+    }
   }
 
   logic() {
