@@ -209,17 +209,22 @@ export default class Engine {
     this.ctx.strokeRect(0, 0, this.width, this.height);
   }
 
+  cleanUp() {
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.components.forEach(component => component.cleanUp())
+  }
+
   gameLoop = (timestamp: number) => {
     //this.oldTimestamp = 0
     //console.log("timestamp" + this.oldTimestamp)
     this.secondsPassed = (timestamp - this.oldTimestamp) / 1000;
     this.oldTimestamp = timestamp;
     this.fps = Math.round(1 / this.secondsPassed)
-    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.cleanUp()
     // this.totalFrames += 1;
     this.logic();
     // this.components.filter((x) => x.logic())
-    //this.components.forEach((x) => x.logic());
+    this.components.forEach((x) => x.logic());
     if (this.on) {
       window.requestAnimationFrame(this.gameLoop)
     }
@@ -244,12 +249,13 @@ export default class Engine {
     }
     if (this.isClicked) {
       let mou = this.getMousePos();
-      this.ctx.fillText("Clicked", mou.x, mou.y);
+      // this.ctx.fillText("Clicked", mou.x, mou.y);
+      this.ctx.fillText(`(${mou.x}, ${mou.y})`, mou.x, mou.y);
     }
   }
 }
 
-interface Position {
+export interface Position {
   x: number;
   y: number;
 }

@@ -1,6 +1,8 @@
 import { onError, onMount } from "solid-js";
+import BallComponent from "../ballComponent";
 import Raytracking from "../raytracingComponent";
 import TestComponent from "../testComponent";
+import UiComponent from "../uiComponent"
 import Engine from "./engine";
 
 const Canvas = ({ width, height }: { width: number, height: number }) => {
@@ -13,8 +15,12 @@ const Canvas = ({ width, height }: { width: number, height: number }) => {
     })
     //let test = new TestComponent(engine)
     //let ray = new Raytracking(engine)
+    let ui = new UiComponent(engine)
+    let ball = new BallComponent(engine)
+    engine.addComponent(ball)
     //engine.addComponent(ray)
     //engine.addComponent(test)
+    engine.addComponent(ui)
     try {
       engine.start()
       console.log("engine started")

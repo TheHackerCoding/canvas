@@ -20,4 +20,6 @@ export default abstract class Component {
   init() { }
 
   logic() { }
+
+  cleanUp() { }
 }

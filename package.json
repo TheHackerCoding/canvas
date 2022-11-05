@@ -15,6 +15,7 @@
     "vite-plugin-solid": "^2.2.6"
   },
   "dependencies": {
+    "cuid": "^2.1.8",
     "keycode": "^2.2.1",
     "solid-js": "^1.4.2"
   }
