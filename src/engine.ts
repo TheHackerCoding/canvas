@@ -1,30 +1,41 @@
 import type Component from "./component";
 import keycode from "keycode";
-import { objLength } from "../utils";
+import { objLength } from "./utils";
 
-const PREFIX = "eng-"
-
-const newStorage = (location: Storage): Dictionary<string> => {
-  let loc: Dictionary<string> = {}
+export const newStorage = <T>(location: Storage, filter?: string): Dictionary<T> => {
+  let loc: Dictionary<T> = {}
   for (const [key, value] of Object.entries(location)) {
-    if (key.startsWith(PREFIX)) {
-      loc[key] = value;
+    if (filter) {
+      if (key.startsWith(filter)) {
+        loc[key] = value;
+      }
     }
   };
+  const _prop = (x: string) => filter ? filter + x : x
   loc = new Proxy(loc, {
-    get(_target, prop) {
-      return location.get(prop)
+    get(_target, prop: string) {
+      try {
+        return JSON.parse(location.get(_prop(prop)))
+      } catch (e) {
+        return location.get(_prop(prop))
+      }
     },
-    set(_target, prop, val) {
-      location.set(prop, val)
+    set(_target, prop: string, val) {
+
+      if (typeof val === 'object') {
+        let str = JSON.stringify(val)
+        location.set(_prop(prop), str)
+      } else {
+        location.set(_prop(prop), val)
+      }
       return true
     },
-    deleteProperty(_target, p) {
-      location.delete(p)
+    deleteProperty(_target, p: string) {
+      location.delete(_prop(p as string))
       return true
     },
-    has(_target, prop) {
-      return location.has(prop)
+    has(_target, prop: string) {
+      return location.has(_prop(prop))
     }
   });
   return loc
@@ -260,7 +271,7 @@ export interface Position {
   y: number;
 }
 
-type Dictionary<V> = {
+export type Dictionary<V> = {
   [key in Key]: V;
 };
 

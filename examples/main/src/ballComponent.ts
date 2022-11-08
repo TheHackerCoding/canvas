@@ -1,4 +1,4 @@
-import Component from "./components/component";
+import { Component } from "../../../src/index";
 
 export default class BallComponent extends Component {
   public radius = 20;

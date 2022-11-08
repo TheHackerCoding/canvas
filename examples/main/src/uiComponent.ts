@@ -1,7 +1,5 @@
-import Component from "./components/component";
-import Engine from "./components/engine";
-import { View, Text } from "./components/ui";
-import { objLength } from "./utils";
+import { Component, Engine, View, Text, objLength } from "../../../src/index";
+
 
 export default class UiComponent extends Component {
   public view: View;

@@ -107,7 +107,7 @@ export class View {
 
   render() {
     this.widgets.forEach(widget => widget.render())
-    var arrayLength = this.widgets.length;
+    //var arrayLength = this.widgets.length;
     // for (var i = 0; i < arrayLength; i++) {
     //   this.widgets[i].render()
     //   //Do something

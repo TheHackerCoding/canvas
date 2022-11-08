@@ -3,7 +3,7 @@ import BallComponent from "../ballComponent";
 import Raytracking from "../raytracingComponent";
 import TestComponent from "../testComponent";
 import UiComponent from "../uiComponent"
-import Engine from "./engine";
+import { Engine } from "../../../../src/index";
 
 const Canvas = ({ width, height }: { width: number, height: number }) => {
   onMount(() => {

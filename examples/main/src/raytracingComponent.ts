@@ -1,5 +1,4 @@
-import Component from "./components/component"
-import Engine from "./components/engine"
+import { Component, Engine } from "../../../src/index";
 
 export default class Raytracking extends Component {
   public scene: Scene = {

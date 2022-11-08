@@ -1,4 +1,4 @@
-import Component from "./components/component";
+import { Component } from "../../../src/index";
 
 export default class TestComponent extends Component {
   logic() {
@@ -10,6 +10,6 @@ export default class TestComponent extends Component {
       let mou = this.engine?.getMousePos();
       this.ctx.fillText(`(${mou.x}, ${mou.y})`, mou.x + 100, mou.y + 100);
     }
-    
+
   }
 }
